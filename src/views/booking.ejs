@@ -1,0 +1,48 @@
+<%
+  var fmt = new Intl.NumberFormat(lang === 'hi' ? 'hi-IN' : 'en-IN');
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-booking">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container narrow">
+      <h1 class="page-head__title"><%= t('booking.h.title') %></h1>
+
+      <section class="card">
+        <h2><%= listing.title %></h2>
+        <p class="muted"><%= listing.address_line %>, <%= listing.city %></p>
+        <p><strong><%= t('listing.rent_per_month', { amount: fmt.format(listing.rent_monthly) }) %></strong></p>
+      </section>
+
+      <section class="card">
+        <h2>Request</h2>
+        <dl class="kv">
+          <dt>Status</dt>
+          <dd><span class="badge badge--<%= booking.status %>"><%= t('booking.status.' + booking.status) %></span></dd>
+          <dt>Type</dt>
+          <dd><%= booking.type === 'visit' ? t('listing.cta.book_visit') : t('listing.cta.reserve') %></dd>
+          <% if (booking.visit_at) { %>
+            <dt><%= t('booking.field.visit_at') %></dt>
+            <dd><%= new Date(booking.visit_at).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN') %></dd>
+          <% } %>
+          <% if (booking.message) { %>
+            <dt><%= t('booking.field.message') %></dt>
+            <dd><%= booking.message %></dd>
+          <% } %>
+          <dt>Sent</dt>
+          <dd><%= new Date(booking.created_at).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN') %></dd>
+        </dl>
+      </section>
+
+      <% if (booking.status === 'accepted' && user && user.id === booking.student_id) { %>
+        <a href="/pay/<%= booking.id %>" class="btn btn--primary btn--lg btn--block"><%= t('pay.btn.pay') %></a>
+      <% } %>
+
+      <p><a href="/listings/<%= booking.listing_id %>" class="btn btn--ghost"><%= t('common.back') %></a></p>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

@@ -1,0 +1,68 @@
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-home">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="container hero__inner">
+        <h1 id="hero-title" class="hero__title"><%= t('app.tagline') %></h1>
+        <p class="hero__lede"><%= t('app.tagline_long') %></p>
+        <form class="hero__search" action="/search" method="get" role="search" aria-label="<%= t('search.title') %>">
+          <label class="visually-hidden" for="hero-q"><%= t('search.q.placeholder') %></label>
+          <input id="hero-q" type="search" name="q" placeholder="<%= t('search.q.placeholder') %>" autocomplete="off" inputmode="search">
+          <label class="visually-hidden" for="hero-city"><%= t('search.filter.city') %></label>
+          <input id="hero-city" type="text" name="city" placeholder="<%= t('search.filter.city') %>" autocomplete="address-level2" list="city-list">
+          <datalist id="city-list">
+            <option value="Solan"></option>
+            <option value="Shimla"></option>
+            <option value="Chandigarh"></option>
+            <option value="Delhi"></option>
+            <option value="Bengaluru"></option>
+          </datalist>
+          <button type="submit" class="btn btn--primary btn--lg"><%= t('home.cta.search') %></button>
+        </form>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="featured-title">
+      <div class="container">
+        <h2 id="featured-title" class="section__title"><%= t('home.h.featured') %></h2>
+        <% if (featured && featured.length > 0) { %>
+          <div class="grid grid--cards">
+            <% featured.forEach(function(listing) { %>
+              <%- include('partials/listing-card', { listing: listing, t: t, lang: lang }) %>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="muted"><%= t('search.empty') %></p>
+        <% } %>
+      </div>
+    </section>
+
+    <section class="section section--alt" aria-labelledby="how-title">
+      <div class="container">
+        <h2 id="how-title" class="section__title"><%= t('home.h.how') %></h2>
+        <ol class="steps">
+          <li class="steps__item"><span class="steps__num" aria-hidden="true">1</span><p><%= t('home.how.1') %></p></li>
+          <li class="steps__item"><span class="steps__num" aria-hidden="true">2</span><p><%= t('home.how.2') %></p></li>
+          <li class="steps__item"><span class="steps__num" aria-hidden="true">3</span><p><%= t('home.how.3') %></p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="why-title">
+      <div class="container">
+        <h2 id="why-title" class="section__title"><%= t('home.h.why') %></h2>
+        <ul class="reasons">
+          <li class="reasons__item"><p><%= t('home.why.1') %></p></li>
+          <li class="reasons__item"><p><%= t('home.why.2') %></p></li>
+          <li class="reasons__item"><p><%= t('home.why.3') %></p></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

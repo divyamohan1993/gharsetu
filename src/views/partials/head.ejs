@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="<%= lang %>" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#E26A2C" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1A1A1A" media="(prefers-color-scheme: dark)">
+<meta name="format-detection" content="telephone=yes">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title><%= page.title %> · <%= t('app.name') %></title>
+<meta name="description" content="<%= page.description || t('app.tagline_long') %>">
+<% if (page.canonical) { %><link rel="canonical" href="<%= page.canonical %>"><% } %>
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="<%= t('app.name') %>">
+<meta property="og:title" content="<%= page.title %>">
+<meta property="og:description" content="<%= page.description || t('app.tagline_long') %>">
+<meta property="og:image" content="<%= page.ogImage || '/static/icons/icon-512.png' %>">
+<meta property="og:locale" content="<%= lang === 'hi' ? 'hi_IN' : 'en_IN' %>">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="<%= page.title %>">
+<meta name="twitter:description" content="<%= page.description || t('app.tagline_long') %>">
+<meta name="twitter:image" content="<%= page.ogImage || '/static/icons/icon-512.png' %>">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="/static/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+<link rel="preconnect" href="https://tile.openstreetmap.org" crossorigin>
+<link rel="preconnect" href="https://unpkg.com" crossorigin>
+<link rel="stylesheet" href="/static/styles.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "<%= t('app.name') %>",
+  "url": "/",
+  "logo": "/static/icons/icon-512.png",
+  "description": "<%= t('app.tagline_long') %>",
+  "areaServed": "IN",
+  "sameAs": []
+}
+</script>
+</head>

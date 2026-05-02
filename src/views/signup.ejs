@@ -1,0 +1,71 @@
+<%
+  var errs = (typeof errors !== 'undefined' && errors) ? errors : {};
+  var v = (typeof values !== 'undefined' && values) ? values : {};
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-auth">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container narrow">
+      <h1 class="page-head__title"><%= t('auth.h.signup') %></h1>
+      <% if (errs._global) { %><div class="flash flash--err" role="alert"><%= errs._global %></div><% } %>
+      <form method="post" action="/signup" class="form" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+        <div class="field <%= errs.full_name ? 'field--err' : '' %>">
+          <label for="s-name"><%= t('auth.field.name') %></label>
+          <input id="s-name" type="text" name="full_name" required minlength="2" maxlength="100" autocomplete="name" value="<%= v.full_name || '' %>">
+          <% if (errs.full_name) { %><p class="field__err"><%= errs.full_name %></p><% } %>
+        </div>
+
+        <div class="field <%= errs.email ? 'field--err' : '' %>">
+          <label for="s-email"><%= t('auth.field.email') %></label>
+          <input id="s-email" type="email" name="email" required autocomplete="email" inputmode="email" value="<%= v.email || '' %>">
+          <% if (errs.email) { %><p class="field__err"><%= errs.email %></p><% } %>
+        </div>
+
+        <div class="field <%= errs.phone ? 'field--err' : '' %>">
+          <label for="s-phone"><%= t('auth.field.phone') %></label>
+          <input id="s-phone" type="tel" name="phone" autocomplete="tel" inputmode="tel" pattern="\+?[0-9]{8,15}" value="<%= v.phone || '' %>">
+          <% if (errs.phone) { %><p class="field__err"><%= errs.phone %></p><% } %>
+        </div>
+
+        <div class="field <%= errs.password ? 'field--err' : '' %>">
+          <label for="s-pass"><%= t('auth.field.password') %></label>
+          <input id="s-pass" type="password" name="password" required minlength="10" maxlength="128" autocomplete="new-password" aria-describedby="pwhint">
+          <p id="pwhint" class="field__hint">Min 10 characters.</p>
+          <% if (errs.password) { %><p class="field__err"><%= errs.password %></p><% } %>
+        </div>
+
+        <fieldset class="field <%= errs.role ? 'field--err' : '' %>">
+          <legend><%= t('auth.field.role') %></legend>
+          <label class="radio">
+            <input type="radio" name="role" value="student" <%= !v.role || v.role === 'student' ? 'checked' : '' %> required>
+            <span><%= t('auth.role.student') %></span>
+          </label>
+          <label class="radio">
+            <input type="radio" name="role" value="owner" <%= v.role === 'owner' ? 'checked' : '' %>>
+            <span><%= t('auth.role.owner') %></span>
+          </label>
+        </fieldset>
+
+        <div class="field">
+          <label for="s-lang"><%= t('auth.field.lang') %></label>
+          <select id="s-lang" name="preferred_lang">
+            <option value="en" <%= !v.preferred_lang || v.preferred_lang === 'en' ? 'selected' : '' %>>English</option>
+            <option value="hi" <%= v.preferred_lang === 'hi' ? 'selected' : '' %>>हिन्दी</option>
+          </select>
+        </div>
+
+        <div class="field-row field-row--actions">
+          <button type="submit" class="btn btn--primary btn--lg btn--block"><%= t('auth.btn.signup') %></button>
+        </div>
+        <p class="muted center"><%= t('auth.alt.has_account') %> <a href="/login"><%= t('auth.btn.login') %></a></p>
+      </form>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

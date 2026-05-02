@@ -1,0 +1,186 @@
+<%
+  var fmt = new Intl.NumberFormat(lang === 'hi' ? 'hi-IN' : 'en-IN');
+  var firstImg = (images && images.length > 0) ? images[0].url : '/static/icons/icon-512.png';
+  page.ogImage = page.ogImage || firstImg;
+  var amenList = []; try { amenList = JSON.parse(listing.amenities || '[]'); } catch(e) {}
+  var rulesList = []; try { rulesList = JSON.parse(listing.rules || '[]'); } catch(e) {}
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-listing">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <article class="listing">
+      <div class="container">
+        <header class="listing__head">
+          <h1 class="listing__title"><%= listing.title %></h1>
+          <p class="listing__price"><%= t('listing.rent_per_month', { amount: fmt.format(listing.rent_monthly) }) %></p>
+          <ul class="listing__badges" aria-label="Details">
+            <li><span class="badge"><%= t('type.' + listing.property_type) %></span></li>
+            <li><span class="badge"><%= t('gender.' + listing.gender_pref) %></span></li>
+            <% if (listing.deposit > 0) { %>
+              <li><span class="badge"><%= t('listing.deposit', { amount: fmt.format(listing.deposit) }) %></span></li>
+            <% } %>
+            <% if (owner && owner.kyc_verified) { %>
+              <li><span class="badge badge--verified"><%= t('listing.badge.verified') %></span></li>
+            <% } %>
+          </ul>
+          <p class="listing__location"><%= listing.address_line %>, <%= listing.city %>, <%= listing.state %> — <%= listing.pincode %></p>
+        </header>
+      </div>
+
+      <% if (images && images.length > 0) { %>
+        <section class="gallery" aria-label="Photos">
+          <div class="gallery__scroller" tabindex="0" role="region" aria-label="Photo gallery">
+            <% images.forEach(function(img, idx){ %>
+              <figure class="gallery__item">
+                <img src="<%= img.url %>" alt="<%= listing.title %> photo <%= idx + 1 %>" loading="<%= idx === 0 ? 'eager' : 'lazy' %>" decoding="async" width="800" height="500">
+              </figure>
+            <% }); %>
+          </div>
+        </section>
+      <% } %>
+
+      <div class="container listing__grid">
+        <div class="listing__main">
+          <section aria-labelledby="about-h">
+            <h2 id="about-h"><%= t('listing.h.about') %></h2>
+            <p class="listing__desc"><%= listing.description %></p>
+            <p class="muted small"><%= t('listing.available_from', { date: new Date(listing.available_from).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) }) %></p>
+            <p class="muted small"><%= t('listing.views', { n: listing.view_count }) %></p>
+          </section>
+
+          <% if (amenList.length > 0) { %>
+            <section aria-labelledby="amen-h">
+              <h2 id="amen-h"><%= t('listing.h.amenities') %></h2>
+              <ul class="amenities">
+                <% amenList.forEach(function(a){ %>
+                  <li class="amenities__item">
+                    <span class="amenities__icon" aria-hidden="true">✓</span>
+                    <span><%= a %></span>
+                  </li>
+                <% }); %>
+              </ul>
+            </section>
+          <% } %>
+
+          <% if (rulesList.length > 0) { %>
+            <section aria-labelledby="rules-h">
+              <h2 id="rules-h"><%= t('listing.h.rules') %></h2>
+              <ul class="rules">
+                <% rulesList.forEach(function(r){ %>
+                  <li><%= r %></li>
+                <% }); %>
+              </ul>
+            </section>
+          <% } %>
+
+          <section aria-labelledby="loc-h">
+            <h2 id="loc-h"><%= t('listing.h.location') %></h2>
+            <% if (listing.near_landmark) { %>
+              <p class="muted"><%= listing.near_landmark %></p>
+            <% } %>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+            <div id="map" class="map map--small" role="region" aria-label="Map">
+              <noscript><p>Lat <%= listing.lat %>, Lng <%= listing.lng %></p></noscript>
+            </div>
+            <script>
+              window.__listings = [{ id: <%- JSON.stringify(listing.id) %>, title: <%- JSON.stringify(listing.title) %>, lat: <%= listing.lat %>, lng: <%= listing.lng %>, rent: <%= listing.rent_monthly %>, city: <%- JSON.stringify(listing.city) %> }];
+              window.__mapZoom = 15;
+              window.__mapLang = <%- JSON.stringify(lang) %>;
+            </script>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+            <script src="/static/search-map.js" defer></script>
+          </section>
+
+          <section aria-labelledby="fb-h" class="feedback">
+            <h2 id="fb-h"><%= t('listing.h.feedback') %></h2>
+            <% if (feedback && feedback.length > 0) { %>
+              <ul class="feedback-list">
+                <% feedback.forEach(function(f){ %>
+                  <%- include('partials/feedback-item', { feedback: f, t: t, lang: lang }) %>
+                <% }); %>
+              </ul>
+            <% } else { %>
+              <p class="muted"><%= t('listing.no_feedback') %></p>
+            <% } %>
+
+            <% if (user) { %>
+              <details class="card feedback-form">
+                <summary><%= t('feedback.h.title') %></summary>
+                <% if (typeof canVerified !== 'undefined' && canVerified) { %>
+                  <p class="muted small"><%= t('feedback.note.verified') %></p>
+                <% } else { %>
+                  <p class="muted small"><%= t('feedback.note.outsider') %></p>
+                <% } %>
+                <form method="post" action="/listings/<%= listing.id %>/feedback" class="form">
+                  <input type="hidden" name="_csrf" value="<%= csrf %>">
+                  <div class="field">
+                    <label for="fb-rating"><%= t('feedback.field.rating') %></label>
+                    <select id="fb-rating" name="rating" required>
+                      <option value="5">★★★★★ — 5</option>
+                      <option value="4">★★★★ — 4</option>
+                      <option value="3">★★★ — 3</option>
+                      <option value="2">★★ — 2</option>
+                      <option value="1">★ — 1</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label for="fb-body"><%= t('feedback.field.body') %></label>
+                    <textarea id="fb-body" name="body" rows="4" minlength="10" maxlength="2000" required></textarea>
+                  </div>
+                  <button type="submit" class="btn btn--primary"><%= t('feedback.btn.submit') %></button>
+                </form>
+              </details>
+            <% } %>
+          </section>
+        </div>
+
+        <aside class="listing__side">
+          <% if (owner) { %>
+            <section class="card owner-card" aria-labelledby="owner-h">
+              <h2 id="owner-h"><%= t('listing.h.owner') %></h2>
+              <p class="owner-card__name"><%= owner.full_name %></p>
+              <% if (owner.kyc_verified) { %>
+                <span class="badge badge--verified"><%= t('listing.badge.verified') %></span>
+              <% } %>
+            </section>
+          <% } %>
+          <div class="cta-stack">
+            <% if (user && user.role === 'student') { %>
+              <form method="post" action="/bookings" class="form">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="hidden" name="listing_id" value="<%= listing.id %>">
+                <input type="hidden" name="type" value="visit">
+                <button type="submit" class="btn btn--primary btn--lg btn--block"><%= t('listing.cta.book_visit') %></button>
+              </form>
+              <form method="post" action="/bookings" class="form">
+                <input type="hidden" name="_csrf" value="<%= csrf %>">
+                <input type="hidden" name="listing_id" value="<%= listing.id %>">
+                <input type="hidden" name="type" value="reserve">
+                <button type="submit" class="btn btn--secondary btn--lg btn--block"><%= t('listing.cta.reserve') %></button>
+              </form>
+            <% } else if (!user) { %>
+              <a href="/login?next=/listings/<%= listing.id %>" class="btn btn--primary btn--lg btn--block"><%= t('nav.login') %></a>
+            <% } %>
+          </div>
+        </aside>
+      </div>
+    </article>
+
+    <% if (user && user.role === 'student') { %>
+      <div class="cta-bar" role="region" aria-label="Actions">
+        <span class="cta-bar__price"><%= t('listing.rent_per_month', { amount: fmt.format(listing.rent_monthly) }) %></span>
+        <form method="post" action="/bookings" class="inline-form">
+          <input type="hidden" name="_csrf" value="<%= csrf %>">
+          <input type="hidden" name="listing_id" value="<%= listing.id %>">
+          <input type="hidden" name="type" value="visit">
+          <button type="submit" class="btn btn--primary"><%= t('listing.cta.book_visit') %></button>
+        </form>
+      </div>
+    <% } %>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

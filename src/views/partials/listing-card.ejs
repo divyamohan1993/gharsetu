@@ -1,0 +1,29 @@
+<article class="card listing-card">
+  <a href="/listings/<%= listing.id %>" class="listing-card__media-link" aria-label="<%= listing.title %>">
+    <% if (listing.primary_image) { %>
+      <img src="<%= listing.primary_image %>" alt="" class="listing-card__media" loading="lazy" decoding="async" width="320" height="200">
+    <% } else { %>
+      <div class="listing-card__media listing-card__media--placeholder" aria-hidden="true">
+        <span>घर</span>
+      </div>
+    <% } %>
+  </a>
+  <div class="listing-card__body">
+    <h3 class="listing-card__title">
+      <a href="/listings/<%= listing.id %>"><%= listing.title %></a>
+    </h3>
+    <p class="listing-card__price">
+      <strong><%= t('listing.rent_per_month', { amount: new Intl.NumberFormat(lang === 'hi' ? 'hi-IN' : 'en-IN').format(listing.rent_monthly) }) %></strong>
+    </p>
+    <ul class="listing-card__meta">
+      <li><%= t('type.' + listing.property_type) %></li>
+      <li><%= t('gender.' + listing.gender_pref) %></li>
+      <li class="listing-card__city"><%= listing.city %></li>
+    </ul>
+    <% if (typeof listing.distance_km === 'number' && listing.near_landmark) { %>
+      <p class="listing-card__distance"><%= t('listing.km_away', { km: listing.distance_km.toFixed(1) + ' km', landmark: listing.near_landmark }) %></p>
+    <% } else if (listing.near_landmark) { %>
+      <p class="listing-card__distance"><%= listing.near_landmark %></p>
+    <% } %>
+  </div>
+</article>

@@ -1,0 +1,83 @@
+<%
+  var s = stats || {};
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-admin">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container">
+      <header class="page-head">
+        <h1 class="page-head__title"><%= t('admin.h.title') %></h1>
+        <span class="muted small" id="admin-status" aria-live="polite">connecting…</span>
+      </header>
+
+      <section class="dash-section" aria-labelledby="ah-stats">
+        <h2 id="ah-stats"><%= t('admin.h.stats') %></h2>
+        <div class="stats-grid">
+          <div class="card stat"><span class="stat__num"><%= s.users || 0 %></span><span class="stat__label">Users</span></div>
+          <div class="card stat"><span class="stat__num"><%= s.listings || 0 %></span><span class="stat__label">Listings</span></div>
+          <div class="card stat"><span class="stat__num"><%= s.bookings || 0 %></span><span class="stat__label">Bookings</span></div>
+          <div class="card stat"><span class="stat__num"><%= s.payments || 0 %></span><span class="stat__label">Payments</span></div>
+          <div class="card stat"><span class="stat__num"><%= s.captured || 0 %></span><span class="stat__label">Captured ₹</span></div>
+          <div class="card stat"><span class="stat__num"><%= s.feedback || 0 %></span><span class="stat__label">Feedback</span></div>
+        </div>
+      </section>
+
+      <section class="dash-section" aria-labelledby="ah-audit">
+        <h2 id="ah-audit"><%= t('admin.h.audit') %></h2>
+        <form class="filters-form filters-form--inline" id="audit-filters" onsubmit="return false;">
+          <div class="field">
+            <label for="af-entity">Entity</label>
+            <select id="af-entity">
+              <option value="">All</option>
+              <option value="user">user</option>
+              <option value="listing">listing</option>
+              <option value="booking">booking</option>
+              <option value="payment">payment</option>
+              <option value="request">request</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="af-action">Action</label>
+            <input id="af-action" type="text" placeholder="e.g. http, create, update">
+          </div>
+          <div class="field">
+            <label for="af-q">Search</label>
+            <input id="af-q" type="search" placeholder="text in payload">
+          </div>
+        </form>
+
+        <div class="audit-feed-wrap">
+          <table class="table audit-feed">
+            <thead>
+              <tr>
+                <th scope="col">Time</th>
+                <th scope="col">Action</th>
+                <th scope="col">Entity</th>
+                <th scope="col">Actor</th>
+                <th scope="col">IP</th>
+                <th scope="col">Payload</th>
+              </tr>
+            </thead>
+            <tbody id="audit-rows">
+              <% (recent || []).forEach(function(r){ %>
+                <tr data-entity="<%= r.entity %>" data-action="<%= r.action %>">
+                  <td><time datetime="<%= new Date(r.created_at).toISOString() %>"><%= new Date(r.created_at).toLocaleTimeString(lang === 'hi' ? 'hi-IN' : 'en-IN') %></time></td>
+                  <td><code><%= r.action %></code></td>
+                  <td><code><%= r.entity %><% if (r.entity_id) { %>:<%= String(r.entity_id).slice(0,8) %><% } %></code></td>
+                  <td><%= r.actor_id ? String(r.actor_id).slice(0,8) : '—' %></td>
+                  <td><%= r.ip || '—' %></td>
+                  <td><pre class="audit-payload"><%= r.payload || '' %></pre></td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

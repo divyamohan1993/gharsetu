@@ -1,0 +1,19 @@
+<li class="feedback-item">
+  <header class="feedback-item__head">
+    <span class="rating" aria-label="<%= feedback.rating %> / 5">
+      <% for (var i = 1; i <= 5; i++) { %><span class="rating__star <%= i <= feedback.rating ? 'rating__star--on' : '' %>" aria-hidden="true">★</span><% } %>
+    </span>
+    <% if (feedback.is_verified_renter) { %>
+      <span class="badge badge--verified" title="<%= t('listing.badge.verified') %>"><%= t('listing.badge.verified') %></span>
+    <% } else { %>
+      <span class="badge badge--outsider" title="<%= t('listing.badge.outsider') %>"><%= t('listing.badge.outsider') %></span>
+    <% } %>
+    <% if (feedback.author_name) { %>
+      <span class="feedback-item__author"><%= feedback.author_name %></span>
+    <% } %>
+    <time class="feedback-item__date" datetime="<%= new Date(feedback.created_at).toISOString() %>">
+      <%= new Date(feedback.created_at).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN', { year: 'numeric', month: 'short', day: 'numeric' }) %>
+    </time>
+  </header>
+  <p class="feedback-item__body"><%= feedback.body %></p>
+</li>

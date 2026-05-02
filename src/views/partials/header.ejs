@@ -1,0 +1,52 @@
+<a class="skip-link" href="#main"><%= t('nav.skip') %></a>
+<header class="site-header" role="banner">
+  <div class="container site-header__row">
+    <a href="/" class="brand" aria-label="<%= t('app.name') %>">
+      <span class="brand__mark" aria-hidden="true">घ</span>
+      <span class="brand__name"><%= t('app.name') %></span>
+    </a>
+
+    <input type="checkbox" id="navtoggle" class="navtoggle" aria-hidden="true">
+    <label for="navtoggle" class="navtoggle-btn" aria-label="Menu" role="button" tabindex="0">
+      <span class="navtoggle-bar" aria-hidden="true"></span>
+      <span class="navtoggle-bar" aria-hidden="true"></span>
+      <span class="navtoggle-bar" aria-hidden="true"></span>
+    </label>
+
+    <nav class="site-nav" role="navigation" aria-label="Primary">
+      <ul class="site-nav__list">
+        <li><a href="/search"<% if (path && path.startsWith('/search')) { %> aria-current="page"<% } %>><%= t('nav.search') %></a></li>
+        <% if (user && user.role === 'owner') { %>
+          <li><a href="/listings/new"<% if (path === '/listings/new') { %> aria-current="page"<% } %>><%= t('nav.list') %></a></li>
+          <li><a href="/owner/dashboard"<% if (path && path.startsWith('/owner')) { %> aria-current="page"<% } %>><%= t('nav.dashboard') %></a></li>
+        <% } else if (user && user.role === 'student') { %>
+          <li><a href="/student/dashboard"<% if (path && path.startsWith('/student')) { %> aria-current="page"<% } %>><%= t('nav.dashboard') %></a></li>
+        <% } else if (user && user.role === 'admin') { %>
+          <li><a href="/admin"<% if (path && path.startsWith('/admin')) { %> aria-current="page"<% } %>>Admin</a></li>
+        <% } %>
+
+        <% if (user) { %>
+          <li class="site-nav__user">
+            <span class="site-nav__greet" aria-label="Account"><%= user.full_name %></span>
+            <form method="post" action="/logout" class="inline-form">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <button type="submit" class="btn btn--ghost btn--sm"><%= t('nav.logout') %></button>
+            </form>
+          </li>
+        <% } else { %>
+          <li><a href="/login" class="btn btn--ghost btn--sm"><%= t('nav.login') %></a></li>
+          <li><a href="/signup" class="btn btn--primary btn--sm"><%= t('nav.signup') %></a></li>
+        <% } %>
+
+        <li>
+          <form method="post" action="/lang" class="lang-form" aria-label="Language">
+            <input type="hidden" name="_csrf" value="<%= csrf %>">
+            <input type="hidden" name="lang" value="<%= lang === 'hi' ? 'en' : 'hi' %>">
+            <input type="hidden" name="next" value="<%= path %>">
+            <button type="submit" class="btn btn--link btn--sm" lang="<%= lang === 'hi' ? 'en' : 'hi' %>"><%= t('nav.lang') %></button>
+          </form>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>

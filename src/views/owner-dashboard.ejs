@@ -1,0 +1,151 @@
+<%
+  var fmt = new Intl.NumberFormat(lang === 'hi' ? 'hi-IN' : 'en-IN');
+  var l_listings = listings || [];
+  var l_bookings = bookings || [];
+  var l_renters = renters || [];
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-dashboard">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container">
+      <header class="page-head">
+        <h1 class="page-head__title"><%= t('owner.h.dashboard') %></h1>
+        <a href="/listings/new" class="btn btn--primary"><%= t('owner.btn.new') %></a>
+      </header>
+
+      <section class="dash-section" aria-labelledby="dl-h">
+        <h2 id="dl-h"><%= t('owner.h.listings') %></h2>
+        <% if (l_listings.length === 0) { %>
+          <p class="muted"><%= t('owner.empty.listings') %></p>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col"><%= t('form.title') %></th>
+                  <th scope="col"><%= t('form.city') %></th>
+                  <th scope="col"><%= t('form.rent') %></th>
+                  <th scope="col">Status</th>
+                  <th scope="col" class="t-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% l_listings.forEach(function(l){ %>
+                  <tr>
+                    <td><a href="/listings/<%= l.id %>"><%= l.title %></a></td>
+                    <td><%= l.city %></td>
+                    <td>₹<%= fmt.format(l.rent_monthly) %></td>
+                    <td><span class="badge badge--<%= l.status %>"><%= l.status %></span></td>
+                    <td class="t-right">
+                      <a href="/listings/<%= l.id %>/edit" class="btn btn--ghost btn--sm"><%= t('common.edit') %></a>
+                      <form method="post" action="/listings/<%= l.id %>/pause" class="inline-form">
+                        <input type="hidden" name="_csrf" value="<%= csrf %>">
+                        <button type="submit" class="btn btn--ghost btn--sm"><%= l.status === 'paused' ? 'Activate' : 'Pause' %></button>
+                      </form>
+                      <form method="post" action="/listings/<%= l.id %>/delete" class="inline-form" onsubmit="return confirm('Delete this listing?');">
+                        <input type="hidden" name="_csrf" value="<%= csrf %>">
+                        <button type="submit" class="btn btn--danger btn--sm"><%= t('common.delete') %></button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="dash-section" aria-labelledby="db-h">
+        <h2 id="db-h"><%= t('owner.h.bookings') %></h2>
+        <% if (l_bookings.length === 0) { %>
+          <p class="muted"><%= t('owner.empty.bookings') %></p>
+        <% } else { %>
+          <%
+            var groups = { pending: [], accepted: [], declined: [], cancelled: [], completed: [] };
+            l_bookings.forEach(function(b){ if (groups[b.status]) groups[b.status].push(b); });
+            var groupOrder = ['pending','accepted','declined','cancelled','completed'];
+          %>
+          <% groupOrder.forEach(function(g){ %>
+            <% if (groups[g].length > 0) { %>
+              <h3 class="dash-section__sub"><%= t('booking.status.' + g) %> <span class="muted">(<%= groups[g].length %>)</span></h3>
+              <ul class="booking-list">
+                <% groups[g].forEach(function(b){ %>
+                  <li class="booking-list__item card">
+                    <div>
+                      <p><strong><a href="/listings/<%= b.listing_id %>"><%= b.listing_title || b.listing_id %></a></strong></p>
+                      <p class="muted small">From: <%= b.student_name || b.student_id %><% if (b.student_email) { %> · <%= b.student_email %><% } %></p>
+                      <% if (b.visit_at) { %><p class="muted small">Visit: <%= new Date(b.visit_at).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN') %></p><% } %>
+                      <% if (b.message) { %><p class="quote"><%= b.message %></p><% } %>
+                    </div>
+                    <% if (g === 'pending') { %>
+                      <div class="booking-list__actions">
+                        <form method="post" action="/bookings/<%= b.id %>/decision" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrf %>">
+                          <input type="hidden" name="decision" value="accept">
+                          <button type="submit" class="btn btn--primary btn--sm"><%= t('owner.btn.accept') %></button>
+                        </form>
+                        <form method="post" action="/bookings/<%= b.id %>/decision" class="inline-form">
+                          <input type="hidden" name="_csrf" value="<%= csrf %>">
+                          <input type="hidden" name="decision" value="decline">
+                          <button type="submit" class="btn btn--ghost btn--sm"><%= t('owner.btn.decline') %></button>
+                        </form>
+                      </div>
+                    <% } %>
+                  </li>
+                <% }); %>
+              </ul>
+            <% } %>
+          <% }); %>
+        <% } %>
+      </section>
+
+      <section class="dash-section" aria-labelledby="dr-h">
+        <h2 id="dr-h"><%= t('owner.h.renters') %></h2>
+        <% if (l_renters.length === 0) { %>
+          <p class="muted">No active renters yet.</p>
+        <% } else { %>
+          <ul class="renter-list">
+            <% l_renters.forEach(function(r){ %>
+              <li class="card renter-list__item">
+                <div>
+                  <p><strong><%= r.student_name || r.student_id %></strong> <% if (r.student_email) { %><span class="muted">· <%= r.student_email %></span><% } %></p>
+                  <p class="muted small"><a href="/listings/<%= r.listing_id %>"><%= r.listing_title || r.listing_id %></a> · since <%= new Date(r.started_at).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN') %> · source: <%= r.source %></p>
+                </div>
+                <% if (r.active) { %>
+                  <form method="post" action="/owner/renters/<%= r.id %>/end" class="inline-form">
+                    <input type="hidden" name="_csrf" value="<%= csrf %>">
+                    <button type="submit" class="btn btn--ghost btn--sm"><%= t('owner.btn.unmark_renter') %></button>
+                  </form>
+                <% } else { %>
+                  <span class="badge">Ended</span>
+                <% } %>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+
+        <details class="card mark-renter">
+          <summary><%= t('owner.btn.mark_renter') %></summary>
+          <% l_listings.forEach(function(l){ %>
+            <form method="post" action="/owner/listings/<%= l.id %>/renters" class="form mark-renter__form">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <h3 class="dash-section__sub"><%= l.title %></h3>
+              <div class="row">
+                <div class="field">
+                  <label for="renter-email-<%= l.id %>">Student email</label>
+                  <input id="renter-email-<%= l.id %>" type="email" name="student_email" required autocomplete="off" inputmode="email">
+                </div>
+                <button type="submit" class="btn btn--primary"><%= t('owner.btn.mark_renter') %></button>
+              </div>
+            </form>
+          <% }); %>
+        </details>
+      </section>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

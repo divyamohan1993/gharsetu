@@ -1,0 +1,5 @@
+<% if (typeof flash !== 'undefined' && flash) { %>
+<div class="flash flash--<%= flash.kind %>" role="<%= flash.kind === 'err' ? 'alert' : 'status' %>" aria-live="<%= flash.kind === 'err' ? 'assertive' : 'polite' %>">
+  <span class="flash__msg"><%= flash.msg %></span>
+</div>
+<% } %>

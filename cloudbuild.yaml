@@ -1,0 +1,110 @@
+steps:
+  # 1. Build the container image (tag with commit SHA + latest)
+  - id: build
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - --tag=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:latest
+      - --label=org.opencontainers.image.revision=$COMMIT_SHA
+      - --label=org.opencontainers.image.source=$REPO_NAME
+      - .
+
+  # 2. Push the SHA-tagged image
+  - id: push-sha
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+    waitFor: ["build"]
+
+  # 3. Push the :latest tag
+  - id: push-latest
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:latest
+    waitFor: ["build"]
+
+  # 4. Deploy to Cloud Run
+  - id: deploy
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk:slim
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - ${_SERVICE}
+      - --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+      - --region=${_REGION}
+      - --platform=managed
+      - --allow-unauthenticated
+      - --memory=512Mi
+      - --cpu=1
+      - --concurrency=80
+      - --min-instances=0
+      - --max-instances=10
+      - --timeout=300
+      - --port=8080
+      - --set-env-vars=NODE_ENV=production,LOG_LEVEL=info,SEED_ON_START=1,DB_PATH=/tmp/gharsetu.db,UPLOADS_DIR=/tmp/uploads,COOKIE_SECURE=1
+      - --set-secrets=JWT_SECRET=jwt-secret:latest,RZP_KEY_SECRET=rzp-secret:latest,RZP_WEBHOOK_SECRET=rzp-webhook-secret:latest,DIGILOCKER_CLIENT_SECRET=digilocker-secret:latest,ADMIN_PASSWORD=admin-password:latest
+    waitFor: ["push-sha", "push-latest"]
+
+images:
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_SERVICE}:latest
+
+substitutions:
+  _REGION: asia-south1
+  _REPO: gharsetu-images
+  _SERVICE: gharsetu
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+  machineType: E2_HIGHCPU_8
+
+timeout: 1800s
+
+# ---------------------------------------------------------------------------
+# One-time setup (run before first build). Replace PROJECT_ID and REGION.
+# ---------------------------------------------------------------------------
+#
+# 1. Enable required services
+#    gcloud services enable \
+#      run.googleapis.com \
+#      cloudbuild.googleapis.com \
+#      artifactregistry.googleapis.com \
+#      secretmanager.googleapis.com
+#
+# 2. Create the Artifact Registry repo
+#    gcloud artifacts repositories create gharsetu-images \
+#      --repository-format=docker \
+#      --location=asia-south1 \
+#      --description="GharSetu container images"
+#
+# 3. Create secrets in Secret Manager (values come from stdin)
+#    printf "%s" "$(openssl rand -hex 48)"  | gcloud secrets create jwt-secret             --data-file=-
+#    printf "%s" "rzp_test_xxx_secret"       | gcloud secrets create rzp-secret             --data-file=-
+#    printf "%s" "$(openssl rand -hex 32)"  | gcloud secrets create rzp-webhook-secret     --data-file=-
+#    printf "%s" "digilocker_client_secret"  | gcloud secrets create digilocker-secret      --data-file=-
+#    printf "%s" "ChangeMe!2026"             | gcloud secrets create admin-password         --data-file=-
+#
+# 4. Grant the Cloud Run runtime service account access to each secret
+#    PROJECT_NUMBER=$(gcloud projects describe "$PROJECT_ID" --format='value(projectNumber)')
+#    RUNTIME_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+#    for s in jwt-secret rzp-secret rzp-webhook-secret digilocker-secret admin-password; do
+#      gcloud secrets add-iam-policy-binding "$s" \
+#        --member="serviceAccount:${RUNTIME_SA}" \
+#        --role="roles/secretmanager.secretAccessor"
+#    done
+#
+# 5. Grant Cloud Build permission to deploy to Cloud Run + act as runtime SA
+#    CB_SA="${PROJECT_NUMBER}@cloudbuild.gserviceaccount.com"
+#    gcloud projects add-iam-policy-binding "$PROJECT_ID" \
+#      --member="serviceAccount:${CB_SA}" --role="roles/run.admin"
+#    gcloud iam service-accounts add-iam-policy-binding "$RUNTIME_SA" \
+#      --member="serviceAccount:${CB_SA}" --role="roles/iam.serviceAccountUser"
+#
+# 6. Trigger a build manually
+#    gcloud builds submit --config cloudbuild.yaml \
+#      --substitutions=_REGION=asia-south1,_REPO=gharsetu-images,_SERVICE=gharsetu .
+# ---------------------------------------------------------------------------

@@ -1,0 +1,40 @@
+<%
+  var errs = (typeof errors !== 'undefined' && errors) ? errors : {};
+  var v = (typeof values !== 'undefined' && values) ? values : {};
+  var nextUrl = (query && typeof query.next === 'string') ? query.next : '';
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-auth">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container narrow">
+      <h1 class="page-head__title"><%= t('auth.h.login') %></h1>
+      <% if (errs._global) { %><div class="flash flash--err" role="alert"><%= errs._global %></div><% } %>
+      <form method="post" action="/login" class="form" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <% if (nextUrl) { %><input type="hidden" name="next" value="<%= nextUrl %>"><% } %>
+
+        <div class="field <%= errs.email ? 'field--err' : '' %>">
+          <label for="l-email"><%= t('auth.field.email') %></label>
+          <input id="l-email" type="email" name="email" required autocomplete="email" inputmode="email" value="<%= v.email || '' %>">
+          <% if (errs.email) { %><p class="field__err"><%= errs.email %></p><% } %>
+        </div>
+
+        <div class="field <%= errs.password ? 'field--err' : '' %>">
+          <label for="l-pass"><%= t('auth.field.password') %></label>
+          <input id="l-pass" type="password" name="password" required autocomplete="current-password">
+          <% if (errs.password) { %><p class="field__err"><%= errs.password %></p><% } %>
+        </div>
+
+        <div class="field-row field-row--actions">
+          <button type="submit" class="btn btn--primary btn--lg btn--block"><%= t('auth.btn.login') %></button>
+        </div>
+        <p class="muted center"><%= t('auth.alt.no_account') %> <a href="/signup"><%= t('auth.btn.signup') %></a></p>
+      </form>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<%
+  var l = (typeof listing !== 'undefined' && listing) ? listing : null;
+  var errs = (typeof errors !== 'undefined' && errors) ? errors : {};
+  var isEdit = !!l;
+  var amenStr = '';
+  if (l && l.amenities) { try { var arr = JSON.parse(l.amenities); amenStr = Array.isArray(arr) ? arr.join(', ') : ''; } catch(e){} }
+  var rulesStr = '';
+  if (l && l.rules) { try { var rarr = JSON.parse(l.rules); rulesStr = Array.isArray(rarr) ? rarr.join('\n') : ''; } catch(e){} }
+  var dateStr = '';
+  if (l && l.available_from) { dateStr = new Date(l.available_from).toISOString().slice(0,10); }
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-listing-form">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container narrow">
+      <h1 class="page-head__title"><%= isEdit ? t('owner.btn.new') + ' / ' + t('common.edit') : t('owner.btn.new') %></h1>
+
+      <% if (errs._global) { %>
+        <div class="flash flash--err" role="alert"><%= errs._global %></div>
+      <% } %>
+
+      <form method="post" action="<%= isEdit ? '/listings/' + l.id : '/listings' %>" enctype="multipart/form-data" class="form" novalidate>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+        <div class="field <%= errs.title ? 'field--err' : '' %>">
+          <label for="f-title"><%= t('form.title') %></label>
+          <input id="f-title" name="title" type="text" required minlength="5" maxlength="120" value="<%= l ? l.title : '' %>" aria-describedby="<%= errs.title ? 'err-title' : '' %>">
+          <% if (errs.title) { %><p id="err-title" class="field__err"><%= errs.title %></p><% } %>
+        </div>
+
+        <div class="field <%= errs.description ? 'field--err' : '' %>">
+          <label for="f-desc"><%= t('form.description') %></label>
+          <textarea id="f-desc" name="description" rows="6" required minlength="20" maxlength="4000" aria-describedby="<%= errs.description ? 'err-desc' : '' %>"><%= l ? l.description : '' %></textarea>
+          <% if (errs.description) { %><p id="err-desc" class="field__err"><%= errs.description %></p><% } %>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="f-type"><%= t('form.type') %></label>
+            <select id="f-type" name="property_type" required>
+              <option value="single_room" <%= l && l.property_type === 'single_room' ? 'selected' : '' %>><%= t('type.single_room') %></option>
+              <option value="shared_room" <%= l && l.property_type === 'shared_room' ? 'selected' : '' %>><%= t('type.shared_room') %></option>
+              <option value="full_pg" <%= l && l.property_type === 'full_pg' ? 'selected' : '' %>><%= t('type.full_pg') %></option>
+              <option value="flat" <%= l && l.property_type === 'flat' ? 'selected' : '' %>><%= t('type.flat') %></option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="f-gender"><%= t('form.gender') %></label>
+            <select id="f-gender" name="gender_pref" required>
+              <option value="any" <%= !l || l.gender_pref === 'any' ? 'selected' : '' %>><%= t('gender.any') %></option>
+              <option value="male" <%= l && l.gender_pref === 'male' ? 'selected' : '' %>><%= t('gender.male') %></option>
+              <option value="female" <%= l && l.gender_pref === 'female' ? 'selected' : '' %>><%= t('gender.female') %></option>
+            </select>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="field <%= errs.rent_monthly ? 'field--err' : '' %>">
+            <label for="f-rent"><%= t('form.rent') %></label>
+            <input id="f-rent" type="number" name="rent_monthly" min="0" step="100" required value="<%= l ? l.rent_monthly : '' %>" inputmode="numeric">
+            <% if (errs.rent_monthly) { %><p class="field__err"><%= errs.rent_monthly %></p><% } %>
+          </div>
+          <div class="field">
+            <label for="f-deposit"><%= t('form.deposit') %></label>
+            <input id="f-deposit" type="number" name="deposit" min="0" step="100" value="<%= l ? l.deposit : 0 %>" inputmode="numeric">
+          </div>
+        </div>
+
+        <div class="field <%= errs.address_line ? 'field--err' : '' %>">
+          <label for="f-addr"><%= t('form.address') %></label>
+          <input id="f-addr" type="text" name="address_line" required maxlength="255" value="<%= l ? l.address_line : '' %>" autocomplete="street-address">
+          <% if (errs.address_line) { %><p class="field__err"><%= errs.address_line %></p><% } %>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="f-city"><%= t('form.city') %></label>
+            <input id="f-city" type="text" name="city" required maxlength="80" value="<%= l ? l.city : '' %>" autocomplete="address-level2">
+          </div>
+          <div class="field">
+            <label for="f-state"><%= t('form.state') %></label>
+            <input id="f-state" type="text" name="state" required maxlength="80" value="<%= l ? l.state : '' %>" autocomplete="address-level1">
+          </div>
+          <div class="field">
+            <label for="f-pin"><%= t('form.pincode') %></label>
+            <input id="f-pin" type="text" name="pincode" required pattern="[0-9]{6}" inputmode="numeric" maxlength="6" value="<%= l ? l.pincode : '' %>" autocomplete="postal-code">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-landmark"><%= t('form.landmark') %></label>
+          <input id="f-landmark" type="text" name="near_landmark" maxlength="160" value="<%= l ? (l.near_landmark || '') : '' %>">
+        </div>
+
+        <fieldset class="field">
+          <legend><%= t('listing.h.location') %></legend>
+          <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+          <div id="picker-map" class="map map--small" role="region" aria-label="Pick location"></div>
+          <div class="row">
+            <div class="field">
+              <label for="f-lat"><%= t('form.lat') %></label>
+              <input id="f-lat" type="number" step="any" name="lat" required value="<%= l ? l.lat : '30.9116' %>" inputmode="decimal">
+            </div>
+            <div class="field">
+              <label for="f-lng"><%= t('form.lng') %></label>
+              <input id="f-lng" type="number" step="any" name="lng" required value="<%= l ? l.lng : '77.0967' %>" inputmode="decimal">
+            </div>
+          </div>
+          <p class="muted small">Click on the map to set the location.</p>
+        </fieldset>
+
+        <div class="field">
+          <label for="f-amen"><%= t('form.amenities') %></label>
+          <input id="f-amen" type="text" name="amenities_csv" value="<%= amenStr %>" placeholder="wifi, ac, geyser, parking">
+        </div>
+
+        <div class="field">
+          <label for="f-rules"><%= t('form.rules') %></label>
+          <textarea id="f-rules" name="rules_text" rows="4" placeholder="No smoking&#10;Quiet after 10pm"><%= rulesStr %></textarea>
+        </div>
+
+        <div class="field">
+          <label for="f-avail"><%= t('form.available_from') %></label>
+          <input id="f-avail" type="date" name="available_from_date" required value="<%= dateStr %>">
+        </div>
+
+        <div class="field">
+          <label for="f-imgs"><%= t('form.images') %></label>
+          <input id="f-imgs" type="file" name="images" accept="image/jpeg,image/png,image/webp" multiple>
+        </div>
+
+        <div class="field-row field-row--actions">
+          <button type="submit" class="btn btn--primary btn--lg"><%= isEdit ? t('form.update') : t('form.submit') %></button>
+          <a href="<%= isEdit ? '/listings/' + l.id : '/owner/dashboard' %>" class="btn btn--ghost"><%= t('form.cancel') %></a>
+        </div>
+      </form>
+    </div>
+  </main>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+  <script defer>
+    document.addEventListener('DOMContentLoaded', function(){
+      function init(){
+        if (typeof L === 'undefined') { setTimeout(init, 100); return; }
+        var latIn = document.getElementById('f-lat');
+        var lngIn = document.getElementById('f-lng');
+        var lat = parseFloat(latIn.value) || 30.9116;
+        var lng = parseFloat(lngIn.value) || 77.0967;
+        var map = L.map('picker-map').setView([lat, lng], 13);
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '© OpenStreetMap contributors', maxZoom: 19
+        }).addTo(map);
+        var marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+        function setLatLng(ll){ latIn.value = ll.lat.toFixed(6); lngIn.value = ll.lng.toFixed(6); }
+        map.on('click', function(e){ marker.setLatLng(e.latlng); setLatLng(e.latlng); });
+        marker.on('dragend', function(){ setLatLng(marker.getLatLng()); });
+      }
+      init();
+    });
+  </script>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

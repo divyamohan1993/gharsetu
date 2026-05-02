@@ -1,0 +1,10 @@
+<script src="/static/app.js" defer></script>
+<script>
+(function(){
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('/static/sw.js', { scope: '/' }).catch(function(){});
+    });
+  }
+})();
+</script>

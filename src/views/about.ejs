@@ -1,0 +1,23 @@
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-about">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <div class="container narrow">
+      <h1 class="page-head__title"><%= t('footer.about') %></h1>
+      <p class="lede"><%= t('app.tagline_long') %></p>
+      <p>GharSetu connects students with verified room owners across India. We are an ONDC-connected platform built for slow phones and patchy networks.</p>
+
+      <h2 id="privacy"><%= t('footer.privacy') %></h2>
+      <p>We collect only what we need. Your data stays in India under DPDP Act 2023 and GDPR-equivalent protections. You can delete your account and all associated data at any time. We never sell your data.</p>
+
+      <h2 id="terms"><%= t('footer.terms') %></h2>
+      <p>By using GharSetu, you agree to provide accurate information, respect other users, and follow Indian law. Owners must own or be authorized to list properties. Students must be enrolled or pursuing education.</p>
+
+      <h2 id="contact"><%= t('footer.contact') %></h2>
+      <p>Email: <a href="mailto:contact@dmj.one">contact@dmj.one</a></p>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

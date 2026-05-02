@@ -1,0 +1,91 @@
+<%
+  var fmt = new Intl.NumberFormat(lang === 'hi' ? 'hi-IN' : 'en-IN');
+  var s_bookings = bookings || [];
+  var s_payments = payments || [];
+  var s_feedback = feedback || [];
+%>
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-dashboard">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+    <div class="container">
+      <header class="page-head">
+        <h1 class="page-head__title"><%= t('student.h.dashboard') %></h1>
+        <% if (user && !user.kyc_verified) { %>
+          <a href="/verify" class="btn btn--secondary"><%= t('verify.btn.start') %></a>
+        <% } %>
+      </header>
+
+      <section class="dash-section" aria-labelledby="sb-h">
+        <h2 id="sb-h"><%= t('student.h.bookings') %></h2>
+        <% if (s_bookings.length === 0) { %>
+          <p class="muted"><%= t('student.empty.bookings') %></p>
+        <% } else { %>
+          <ul class="booking-list">
+            <% s_bookings.forEach(function(b){ %>
+              <li class="card booking-list__item">
+                <div>
+                  <p><strong><a href="/listings/<%= b.listing_id %>"><%= b.listing_title || b.listing_id %></a></strong></p>
+                  <p class="muted small"><%= b.type === 'visit' ? t('listing.cta.book_visit') : t('listing.cta.reserve') %> · <%= t('booking.status.' + b.status) %></p>
+                  <% if (b.visit_at) { %><p class="muted small"><%= new Date(b.visit_at).toLocaleString(lang === 'hi' ? 'hi-IN' : 'en-IN') %></p><% } %>
+                </div>
+                <% if (b.status === 'accepted') { %>
+                  <a href="/pay/<%= b.id %>" class="btn btn--primary btn--sm"><%= t('pay.btn.pay') %></a>
+                <% } %>
+              </li>
+            <% }); %>
+          </ul>
+        <% } %>
+      </section>
+
+      <section class="dash-section" aria-labelledby="sp-h">
+        <h2 id="sp-h"><%= t('student.h.payments') %></h2>
+        <% if (s_payments.length === 0) { %>
+          <p class="muted">No payments yet.</p>
+        <% } else { %>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Date</th>
+                  <th scope="col">Listing</th>
+                  <th scope="col">Amount</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">For month</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% s_payments.forEach(function(p){ %>
+                  <tr>
+                    <td><%= new Date(p.created_at).toLocaleDateString(lang === 'hi' ? 'hi-IN' : 'en-IN') %></td>
+                    <td><a href="/listings/<%= p.listing_id %>"><%= p.listing_title || p.listing_id %></a></td>
+                    <td>₹<%= fmt.format(p.amount) %></td>
+                    <td><span class="badge badge--<%= p.status %>"><%= p.status %></span></td>
+                    <td><%= p.for_month || '—' %></td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </section>
+
+      <section class="dash-section" aria-labelledby="sf-h">
+        <h2 id="sf-h"><%= t('student.h.feedback') %></h2>
+        <% if (s_feedback.length === 0) { %>
+          <p class="muted">No feedback left yet.</p>
+        <% } else { %>
+          <ul class="feedback-list">
+            <% s_feedback.forEach(function(f){ %>
+              <%- include('partials/feedback-item', { feedback: f, t: t, lang: lang }) %>
+            <% }); %>
+          </ul>
+        <% } %>
+      </section>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

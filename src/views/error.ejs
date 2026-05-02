@@ -1,0 +1,18 @@
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-error">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <div class="container narrow center">
+      <p class="error__code" aria-hidden="true"><%= typeof code !== 'undefined' ? code : '' %></p>
+      <h1 class="page-head__title"><%= errorTitle %></h1>
+      <p class="muted"><%= errorBody %></p>
+      <% if (typeof reqId !== 'undefined' && reqId) { %>
+        <p class="muted small">Reference: <code><%= reqId %></code></p>
+      <% } %>
+      <p><a href="/" class="btn btn--primary"><%= t('common.back') %></a></p>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

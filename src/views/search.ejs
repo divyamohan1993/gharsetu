@@ -1,0 +1,159 @@
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-search">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+
+    <div class="container">
+      <header class="page-head">
+        <h1 class="page-head__title"><%= t('search.title') %></h1>
+        <p class="page-head__meta"><%= t('search.results.count', { n: total }) %></p>
+        <div class="view-toggle" role="tablist" aria-label="View">
+          <%
+            var qNoView = Object.assign({}, query); delete qNoView.view; delete qNoView.page;
+            function qs(extra) {
+              var merged = Object.assign({}, qNoView, extra);
+              var parts = [];
+              for (var k in merged) {
+                var v = merged[k];
+                if (v === undefined || v === null || v === '') continue;
+                if (Array.isArray(v)) v.forEach(function(x){ parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(x)); });
+                else parts.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+              }
+              return parts.length ? '?' + parts.join('&') : '';
+            }
+            var isMap = query.view === 'map';
+          %>
+          <a href="/search<%= qs({ view: 'list' }) %>" class="view-toggle__btn <%= !isMap ? 'is-active' : '' %>" aria-current="<%= !isMap ? 'true' : 'false' %>"><%= t('search.toggle.list') %></a>
+          <a href="/search<%= qs({ view: 'map' }) %>" class="view-toggle__btn <%= isMap ? 'is-active' : '' %>" aria-current="<%= isMap ? 'true' : 'false' %>"><%= t('search.toggle.map') %></a>
+        </div>
+      </header>
+
+      <div class="search-grid">
+        <aside class="search-filters" aria-label="Filters">
+          <form method="get" action="/search" class="filters-form">
+            <% if (query.view) { %><input type="hidden" name="view" value="<%= query.view %>"><% } %>
+
+            <div class="field">
+              <label for="f-city"><%= t('search.filter.city') %></label>
+              <input id="f-city" type="text" name="city" value="<%= query.city || '' %>" autocomplete="address-level2" list="city-list">
+              <datalist id="city-list">
+                <option value="Solan"></option>
+                <option value="Shimla"></option>
+                <option value="Chandigarh"></option>
+                <option value="Delhi"></option>
+                <option value="Bengaluru"></option>
+              </datalist>
+            </div>
+
+            <div class="field">
+              <label for="f-q"><%= t('search.q.placeholder') %></label>
+              <input id="f-q" type="search" name="q" value="<%= query.q || '' %>" inputmode="search">
+            </div>
+
+            <fieldset class="field">
+              <legend><%= t('search.filter.budget') %></legend>
+              <div class="field-row">
+                <label for="f-min" class="visually-hidden">Min</label>
+                <input id="f-min" type="number" name="min" min="0" step="500" placeholder="Min" value="<%= query.min || '' %>" inputmode="numeric">
+                <span aria-hidden="true">—</span>
+                <label for="f-max" class="visually-hidden">Max</label>
+                <input id="f-max" type="number" name="max" min="0" step="500" placeholder="Max" value="<%= query.max || '' %>" inputmode="numeric">
+              </div>
+            </fieldset>
+
+            <div class="field">
+              <label for="f-type"><%= t('search.filter.type') %></label>
+              <select id="f-type" name="type">
+                <option value=""></option>
+                <option value="single_room" <%= query.type === 'single_room' ? 'selected' : '' %>><%= t('type.single_room') %></option>
+                <option value="shared_room" <%= query.type === 'shared_room' ? 'selected' : '' %>><%= t('type.shared_room') %></option>
+                <option value="full_pg" <%= query.type === 'full_pg' ? 'selected' : '' %>><%= t('type.full_pg') %></option>
+                <option value="flat" <%= query.type === 'flat' ? 'selected' : '' %>><%= t('type.flat') %></option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="f-gender"><%= t('search.filter.gender') %></label>
+              <select id="f-gender" name="gender">
+                <option value=""></option>
+                <option value="any" <%= query.gender === 'any' ? 'selected' : '' %>><%= t('gender.any') %></option>
+                <option value="male" <%= query.gender === 'male' ? 'selected' : '' %>><%= t('gender.male') %></option>
+                <option value="female" <%= query.gender === 'female' ? 'selected' : '' %>><%= t('gender.female') %></option>
+              </select>
+            </div>
+
+            <fieldset class="field">
+              <legend><%= t('search.filter.amenities') %></legend>
+              <%
+                var checkedAmen = [];
+                if (Array.isArray(query.amenities)) checkedAmen = query.amenities;
+                else if (typeof query.amenities === 'string' && query.amenities) checkedAmen = query.amenities.split(',');
+                var amenList = ['wifi','attached_bath','ac','geyser','meals','parking','laundry','power_backup','cctv','study_table'];
+              %>
+              <% amenList.forEach(function(a){ %>
+                <label class="check">
+                  <input type="checkbox" name="amenities" value="<%= a %>" <%= checkedAmen.indexOf(a) !== -1 ? 'checked' : '' %>>
+                  <span><%= a.replace(/_/g,' ') %></span>
+                </label>
+              <% }); %>
+            </fieldset>
+
+            <div class="field">
+              <label for="f-sort"><%= t('search.filter.sort') %></label>
+              <select id="f-sort" name="sort">
+                <option value="recent" <%= !query.sort || query.sort === 'recent' ? 'selected' : '' %>><%= t('search.sort.recent') %></option>
+                <option value="price_asc" <%= query.sort === 'price_asc' ? 'selected' : '' %>><%= t('search.sort.price_asc') %></option>
+                <option value="price_desc" <%= query.sort === 'price_desc' ? 'selected' : '' %>><%= t('search.sort.price_desc') %></option>
+              </select>
+            </div>
+
+            <div class="field-row field-row--actions">
+              <button type="submit" class="btn btn--primary"><%= t('search.btn.apply') %></button>
+              <a href="/search" class="btn btn--ghost"><%= t('search.btn.reset') %></a>
+            </div>
+          </form>
+        </aside>
+
+        <section class="search-results" aria-label="Results">
+          <% if (isMap) { %>
+            <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+            <div id="map" class="map" role="region" aria-label="Map of rooms"></div>
+            <noscript><p class="muted">Map requires JavaScript. <a href="/search<%= qs({ view: 'list' }) %>"><%= t('search.toggle.list') %></a></p></noscript>
+            <script>
+              window.__listings = <%- JSON.stringify((results || []).map(function(l){ return { id: l.id, title: l.title, lat: l.lat, lng: l.lng, rent: l.rent_monthly, city: l.city }; })) %>;
+              window.__mapLang = <%- JSON.stringify(lang) %>;
+            </script>
+            <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin="" defer></script>
+            <script src="/static/search-map.js" defer></script>
+          <% } else { %>
+            <% if (!results || results.length === 0) { %>
+              <p class="empty"><%= t('search.empty') %></p>
+            <% } else { %>
+              <div class="grid grid--cards">
+                <% results.forEach(function(listing){ %>
+                  <%- include('partials/listing-card', { listing: listing, t: t, lang: lang }) %>
+                <% }); %>
+              </div>
+
+              <% if (pages > 1) { %>
+                <nav class="pagination" aria-label="Pagination">
+                  <% if (page > 1) { %>
+                    <a class="pagination__link" rel="prev" href="/search<%= qs({ page: page - 1 }) %>">‹ Previous</a>
+                  <% } %>
+                  <span class="pagination__current">Page <%= page %> of <%= pages %></span>
+                  <% if (page < pages) { %>
+                    <a class="pagination__link" rel="next" href="/search<%= qs({ page: page + 1 }) %>">Next ›</a>
+                  <% } %>
+                </nav>
+              <% } %>
+            <% } %>
+          <% } %>
+        </section>
+      </div>
+    </div>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>
