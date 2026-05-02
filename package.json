@@ -8,7 +8,7 @@
     "node": ">=22.0.0"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && cp -r src/views dist/views && cp -r src/locales dist/locales && cp -r src/public dist/public && cp src/db/schema.sql dist/db/schema.sql",
+    "build": "python3 scripts/render_pages.py && tsc -p tsconfig.json && cp -r src/views dist/views && cp -r src/locales dist/locales && cp -r src/public dist/public && cp src/db/schema.sql dist/db/schema.sql",
     "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "test": "node --test tests/smoke.mjs",

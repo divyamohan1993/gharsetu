@@ -17,6 +17,7 @@ import { loadUser } from "./auth/middleware.js";
 import { detectLang, makeT } from "./i18n.js";
 import { buildLocals } from "./lib/render.js";
 import { registerHomeRoutes } from "./routes/home.js";
+import { registerPagesRoutes } from "./routes/pages.js";
 import { registerAuthRoutes } from "./routes/auth.js";
 import { registerSearchRoutes } from "./routes/search.js";
 import { registerListingsRoutes } from "./routes/listings.js";
@@ -143,6 +144,7 @@ async function main(): Promise<void> {
 
   await registerHealthRoutes(app);
   await registerHomeRoutes(app);
+  await registerPagesRoutes(app);
   await registerAuthRoutes(app);
   await registerSearchRoutes(app);
   await registerListingsRoutes(app);

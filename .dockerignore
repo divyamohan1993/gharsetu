@@ -37,3 +37,9 @@ cloudbuild.yaml
 .dockerignore
 .gcloudignore
 LICENSE
+
+# Capstone artefacts — needed during the docker build (render_pages.py reads them).
+!Akshit_Thakur_Capstone_Report.docx
+!Akshit_Thakur_Capstone_Presentation.pptx
+!scripts/
+!scripts/**

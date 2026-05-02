@@ -1,0 +1,30 @@
+<%- include('partials/head', { page: page, lang: lang, t: t }) %>
+<body class="page-report">
+  <%- include('partials/header', { user: user, t: t, lang: lang, csrf: csrf, path: path }) %>
+  <main id="main" tabindex="-1">
+    <%- include('partials/flash', { flash: flash }) %>
+
+    <section class="page-hero" aria-labelledby="report-title">
+      <div class="container">
+        <p class="page-hero__eyebrow">Capstone Project</p>
+        <h1 id="report-title" class="page-hero__title">Capstone Report</h1>
+        <p class="page-hero__sub">GharSetu — Localized PG &amp; Room Rental Platform with ONDC Connectivity. Akshit Thakur · B.Tech CSE Cybersecurity · Shoolini University · May 2026.</p>
+        <p class="page-hero__cta">
+          <a class="btn btn--primary" href="/report.docx" download>Download .docx</a>
+          <a class="btn btn--ghost" href="/pitch">View as slides</a>
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="report-layout">
+          <%- include('_generated/report-body') %>
+        </div>
+      </div>
+    </section>
+  </main>
+  <%- include('partials/footer', { t: t }) %>
+  <%- include('partials/scripts') %>
+</body>
+</html>

@@ -11,6 +11,7 @@ ENV NODE_ENV=development \
 RUN apt-get update \
  && apt-get install -y --no-install-recommends \
       python3 \
+      python3-pip \
       make \
       g++ \
       pkg-config \
@@ -19,6 +20,11 @@ RUN apt-get update \
       ca-certificates \
  && rm -rf /var/lib/apt/lists/*
 
+RUN pip3 install --break-system-packages --no-cache-dir \
+      'python-docx==1.1.0' \
+      'python-pptx==1.0.2' \
+      Pillow
+
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
@@ -26,6 +32,8 @@ RUN npm ci --include=dev
 
 COPY tsconfig.json ./
 COPY src ./src
+COPY scripts ./scripts
+COPY Akshit_Thakur_Capstone_Report.docx Akshit_Thakur_Capstone_Presentation.pptx ./
 
 RUN npm run build \
  && npm prune --omit=dev \
