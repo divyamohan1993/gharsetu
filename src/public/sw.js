@@ -1,5 +1,5 @@
 /* GharSetu service worker — offline-first shell. */
-const VERSION = 'gharsetu-v1';
+const VERSION = 'gharsetu-v3';
 const SHELL = [
   '/',
   '/search',

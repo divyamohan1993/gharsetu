@@ -353,8 +353,9 @@ def render_pitch() -> Tuple[str, int]:
                 f'<h2 class="slide__title visually-hidden" id="{slide_id}-title">{html_escape(slide_title)}</h2>',
             )
 
+        active_class = " is-active" if slide_num == 1 else ""
         section = (
-            f'<section class="slide" id="{slide_id}" '
+            f'<section class="slide{active_class}" id="{slide_id}" '
             f'data-slide="{slide_num}" '
             f'data-slide-title="{html_escape(slide_title)}" '
             f'aria-labelledby="{slide_id}-title">\n'

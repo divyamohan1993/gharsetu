@@ -3,7 +3,9 @@
 (function(){
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function(){
-      navigator.serviceWorker.register('/static/sw.js', { scope: '/' }).catch(function(){});
+      // /sw.js is proxied to the static file with `Service-Worker-Allowed: /`
+      // so the worker can claim the whole origin.
+      navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(){});
     });
   }
 })();

@@ -304,6 +304,12 @@
 
     window.addEventListener('hashchange', function () { show(fromHash(), { skipHash: true }); });
 
-    show(fromHash(), { skipHash: true });
+    // Always start at slide 1 on initial load. Stale URL hashes from prior
+    // sessions used to make the deck open at a random slide. Strip the hash
+    // (replaceState, no scroll) and show slide 1 explicitly.
+    if (location.hash && /^#slide-\d+$/.test(location.hash)) {
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) { /* ignore */ }
+    }
+    show(0, { skipHash: true });
   });
 })();

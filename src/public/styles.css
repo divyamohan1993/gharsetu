@@ -778,9 +778,6 @@ a:hover { text-decoration-thickness: 2px; }
   border: 1px solid var(--c-border-soft);
   border-radius: var(--r-3);
   max-width: min(100%, calc(92vh * 16 / 9));
-  position: sticky;
-  bottom: var(--s-3);
-  z-index: 5;
 }
 .pitch__counter {
   font-variant-numeric: tabular-nums;
@@ -808,6 +805,3 @@ a:hover { text-decoration-thickness: 2px; }
   .pitch .slide { transition: none !important; }
 }
 
-@media (max-width: 720px) {
-  .pitch__controls { position: static; }
-}
