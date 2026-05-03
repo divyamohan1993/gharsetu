@@ -1,0 +1,24 @@
+# GharSetu CODEOWNERS
+# Reviewers required for matching paths. The last matching pattern wins.
+
+# Default: everything in the repo needs maintainer review.
+*                               @divyamohan1993
+
+# Engineering contract — change with care.
+/SPEC.md                        @divyamohan1993
+
+# Sensitive route handlers — production swap-out points are here.
+/src/routes/ondc.ts             @divyamohan1993
+/src/routes/payments.ts         @divyamohan1993
+/src/routes/verification.ts     @divyamohan1993
+/src/auth/                      @divyamohan1993
+
+# Build, deploy, and CI configuration.
+/Dockerfile                     @divyamohan1993
+/cloudbuild.yaml                @divyamohan1993
+/deploy.sh                      @divyamohan1993
+/.github/                       @divyamohan1993
+/scripts/                       @divyamohan1993
+
+# Database schema and seed.
+/src/db/                        @divyamohan1993

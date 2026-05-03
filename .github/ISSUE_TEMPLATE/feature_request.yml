@@ -1,0 +1,51 @@
+name: Feature request
+description: Suggest an idea for GharSetu.
+title: "[Feature] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening a feature request, please search Discussions and existing Issues. We accept features that match the project's direction (see `SPEC.md` and `idea.md`).
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Describe the user need, not the implementation.
+      placeholder: As a student, I want to filter listings by walking distance to my college so I do not waste time visiting far-away rooms.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+      description: Sketch the UX or API. Concrete is better than abstract.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+  - type: textarea
+    id: who
+    attributes:
+      label: Who benefits?
+      description: Students / owners / admins / ONDC peers / something else?
+    validations:
+      required: true
+  - type: dropdown
+    id: scope
+    attributes:
+      label: How big is this?
+      options:
+        - Small (a single route or view)
+        - Medium (a feature spanning a few files)
+        - Large (architecture-changing — please open a Discussion first)
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to submit a PR for this feature.

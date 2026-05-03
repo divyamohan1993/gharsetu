@@ -1,0 +1,61 @@
+name: Accessibility report
+description: Report a WCAG 2.2 issue, screen reader bug, or keyboard trap.
+title: "[a11y] "
+labels: ["accessibility", "triage"]
+body:
+  - type: input
+    id: page
+    attributes:
+      label: Page URL
+      placeholder: https://gharsetu.dmj.one/listings/<id>
+    validations:
+      required: true
+  - type: input
+    id: criterion
+    attributes:
+      label: WCAG 2.2 criterion failed
+      placeholder: 1.4.6 Contrast (Enhanced) AAA
+    validations:
+      required: true
+  - type: input
+    id: tech
+    attributes:
+      label: Assistive tech / browser
+      placeholder: NVDA 2024.4 · Firefox 134
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      options:
+        - Low (annoyance)
+        - Medium (workaround exists)
+        - High (no workaround)
+        - Blocker (page is unusable for affected users)
+    validations:
+      required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to submit a PR for this fix.

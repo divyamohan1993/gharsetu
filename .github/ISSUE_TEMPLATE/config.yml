@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussions — questions and ideas
+    url: https://github.com/divyamohan1993/gharsetu/discussions
+    about: Use Discussions for questions, ideas, and general conversation. Issues are for bugs and feature requests only.
+  - name: Security vulnerability
+    url: https://github.com/divyamohan1993/gharsetu/security/advisories/new
+    about: Privately report a vulnerability. Do not open a public Issue.
+  - name: Live demo
+    url: https://gharsetu.dmj.one
+    about: Try GharSetu before filing an issue.

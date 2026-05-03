@@ -1,0 +1,65 @@
+name: Bug report
+description: Something is broken or behaves unexpectedly.
+title: "[Bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill in every field — vague reports are slow to triage.
+  - type: input
+    id: where
+    attributes:
+      label: Where did this happen?
+      description: Page URL or API endpoint.
+      placeholder: https://gharsetu.dmj.one/search
+    validations:
+      required: true
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      description: Browser + version, OS, screen size if relevant.
+      placeholder: Chrome 134 · Android 14 · 412×915
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Numbered, minimal, reproducible.
+      placeholder: |
+        1. Sign in as student@gharsetu.local
+        2. Open /search?city=Solan
+        3. Click the second listing
+        4. Click "Request a visit"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behaviour
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console logs / network errors / screenshots
+      description: Drag screenshots in. Paste console output as a code block.
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit SHA
+      placeholder: v0.1.0 or 97e1793
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to submit a PR for this fix.

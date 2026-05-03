@@ -1,0 +1,49 @@
+name: Translation / i18n
+description: Add a language, fix a wrong translation, or report a missing key.
+title: "[i18n] "
+labels: ["i18n", "good first issue"]
+body:
+  - type: input
+    id: language
+    attributes:
+      label: Language
+      description: Name + ISO 639-1 code.
+      placeholder: Tamil (ta)
+    validations:
+      required: true
+  - type: dropdown
+    id: kind
+    attributes:
+      label: What kind of i18n change?
+      options:
+        - New language
+        - Fix wrong translation
+        - Missing key
+        - Pluralisation / formatting issue
+        - RTL layout issue
+    validations:
+      required: true
+  - type: textarea
+    id: keys
+    attributes:
+      label: Affected keys (or page URL)
+      placeholder: search.q.placeholder, listing.cta.book_visit
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed translation(s)
+      description: Use the same JSON structure as `src/locales/en.json`.
+      render: json
+  - type: checkboxes
+    id: native
+    attributes:
+      label: Confirmation
+      options:
+        - label: I am a native or fluent speaker of this language.
+          required: true
+  - type: checkboxes
+    id: contribute
+    attributes:
+      label: Contribution
+      options:
+        - label: I would like to submit a PR with this translation.

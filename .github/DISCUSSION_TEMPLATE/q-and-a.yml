@@ -1,0 +1,26 @@
+title: "[Q&A] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Welcome. Please search existing Discussions before posting — your question may already have an answer.
+  - type: textarea
+    id: question
+    attributes:
+      label: Your question
+      description: Be specific. "It does not work" is not specific.
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: Logs, error messages, the section of `SPEC.md` or `README.md` you read.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit SHA
+      placeholder: v0.1.0 or 97e1793
