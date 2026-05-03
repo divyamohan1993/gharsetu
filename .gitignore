@@ -1,26 +1,56 @@
-node_modules
-dist
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+
+# Local env (never commit secrets; .env.example is safe)
 .env
 .env.*
 !.env.example
+
+# Logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.DS_Store
-Thumbs.db
-.vscode
-.idea
+
+# Editor
+.idea/
+.vscode/
 *.swp
 *.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Caches / scratch
 /tmp
 .tmp
 .cache
 /data
-coverage
-.nyc_output
-.claude
+
+# Coverage / artifacts
+coverage/
+.nyc_output/
+
+# Local databases
 *.sqlite
 *.sqlite-journal
 *.db
 *.db-journal
+
+# Cloud / Docker
+*.tfstate*
+.tfdebug
+
+# Claude Code internals
+.claude
+
+# Playwright MCP diagnostics
+.playwright-mcp/
+
+# Capstone artefacts (DO NOT IGNORE — they ship in repo)
+!Akshit_Thakur_Capstone_Report.docx
+!Akshit_Thakur_Capstone_Presentation.pptx

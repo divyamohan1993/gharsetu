@@ -1,0 +1,18 @@
+* text=auto eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.docx binary
+*.pptx binary
+*.pdf binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+package-lock.json -diff
+
+src/views/_generated/* linguist-generated=true
+src/public/downloads/* linguist-generated=true

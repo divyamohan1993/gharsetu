@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build & publish release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python build deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install 'python-docx==1.1.0' 'python-pptx==1.0.2' Pillow
+
+      - name: Install OS build deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libvips-dev libsqlite3-dev
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Package dist tarball
+        env:
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          ASSET="gharsetu-${TAG_NAME}-dist.tar.gz"
+          tar -czf "$ASSET" dist/
+          sha256sum "$ASSET" > "${ASSET}.sha256"
+          echo "ASSET=${ASSET}" >> "$GITHUB_ENV"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          fail_on_unmatched_files: true
+          files: |
+            ${{ env.ASSET }}
+            ${{ env.ASSET }}.sha256

@@ -1,0 +1,31 @@
+docs:
+  - changed-files:
+      - any-glob-to-any-file: ['**/*.md', '.github/**']
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: ['.github/workflows/**', 'cloudbuild.yaml', 'Dockerfile', 'deploy.sh']
+
+deps:
+  - changed-files:
+      - any-glob-to-any-file: ['package.json', 'package-lock.json']
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: ['src/routes/**', 'src/auth/**', 'src/lib/**', 'src/db/**', 'src/server.ts']
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: ['src/views/**', 'src/public/**']
+
+i18n:
+  - changed-files:
+      - any-glob-to-any-file: ['src/locales/**', 'src/i18n.ts']
+
+ondc:
+  - changed-files:
+      - any-glob-to-any-file: ['src/routes/ondc.ts']
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: ['tests/**']
